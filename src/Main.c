@@ -14,8 +14,8 @@ int Mode = 0;
 int Menu = 0;
 float Speed = 4.0f;
 
-vec3d WorldOrigin;
-vec3d FunctionAngle;
+Vec3D WorldOrigin;
+Vec3D FunctionAngle;
 Vec2 FunctionOrigin;
 
 
@@ -41,14 +41,13 @@ void Setup(AlxWindow* w){
 	RGA_Get(6969);
 
 	FunctionOrigin = (Vec2){ 0.0f,0.0f };
-	FunctionAngle = (vec3d){ 0.0f,0.0f,0.0f,1.0f };
-	//WorldOrigin = (vec3d){ 0.0f,0.0f,0.0f,1.0f };
-	WorldOrigin = (vec3d){ 0.0f,0.0f,0.0f,1.0f };
+	FunctionAngle = (Vec3D){ 0.0f,0.0f,0.0f,1.0f };
+	//WorldOrigin = (Vec3D){ 0.0f,0.0f,0.0f,1.0f };
+	WorldOrigin = (Vec3D){ 0.0f,0.0f,0.0f,1.0f };
 
 	cam = Camera_Make(
-		(vec3d){ 0.0f,15.0f,-18.0f,1.0f },
-		(vec3d){ 0.0f,0.0f,0.0f,1.0f },
-		(vec3d){ 3.14 * 0.25f,0.0f,0.0f,1.0f },
+		(Vec3D){ 0.0f,15.0f,-18.0f,1.0f },
+		(Vec3D){ 3.14 * 0.25f,0.0f,0.0f,1.0f },
 		90.0f
 	);
 
@@ -60,7 +59,7 @@ void Setup(AlxWindow* w){
 	world.normal = WORLD3D_NORMAL_CAP;
 
 	Mesh_Read(&world.trisIn,"./data/mountains.obj");
-	Mesh_Shade(&world.trisIn,(vec3d){ 0.5f,0.4f,0.6f,1.0f });
+	Mesh_Shade(&world.trisIn,(Vec3D){ 0.5f,0.4f,0.6f,1.0f });
 }
 
 void Update(AlxWindow* w){
@@ -94,13 +93,13 @@ void Update(AlxWindow* w){
 	// 	FunctionOrigin.x -= 7.0f * w->ElapsedTime;
 	
 	if(Stroke(ALX_KEY_W).DOWN)
-		cam.p = vec3d_Add(cam.p,vec3d_Mul(cam.ld,Speed * w->ElapsedTime));
+		cam.p = Vec3D_Add(cam.p,Vec3D_Mul(cam.ld,Speed * w->ElapsedTime));
 	if(Stroke(ALX_KEY_S).DOWN)
-		cam.p = vec3d_Sub(cam.p,vec3d_Mul(cam.ld,Speed * w->ElapsedTime));
+		cam.p = Vec3D_Sub(cam.p,Vec3D_Mul(cam.ld,Speed * w->ElapsedTime));
 	if(Stroke(ALX_KEY_A).DOWN)
-		cam.p = vec3d_Add(cam.p,vec3d_Mul(cam.sd,Speed * w->ElapsedTime));
+		cam.p = Vec3D_Add(cam.p,Vec3D_Mul(cam.sd,Speed * w->ElapsedTime));
 	if(Stroke(ALX_KEY_D).DOWN)
-		cam.p = vec3d_Sub(cam.p,vec3d_Mul(cam.sd,Speed * w->ElapsedTime));
+		cam.p = Vec3D_Sub(cam.p,Vec3D_Mul(cam.sd,Speed * w->ElapsedTime));
 	if(Stroke(ALX_KEY_R).DOWN)
 		cam.p.y += Speed * w->ElapsedTime;
 	if(Stroke(ALX_KEY_F).DOWN)
@@ -112,9 +111,9 @@ void Update(AlxWindow* w){
 	World3D_Set_Proj(&world,Matrix_MakeProjection(cam.fov,(float)GetHeight() / (float)GetWidth(),0.1f,1000.0f));
 
 	//Vector_Clear(&world.trisIn);
-	//triangle t2 = { p1,p3,p4,{},RED };
-	//triangle_CalcNorm(&t1);
-	//triangle_ShadeNorm(&t1,(vec3d){ 0.5f,0.4f,0.6f,1.0f });
+	//Tri3D t2 = { p1,p3,p4,{},RED };
+	//Tri3D_CalcNorm(&t1);
+	//Tri3D_ShadeNorm(&t1,(Vec3D){ 0.5f,0.4f,0.6f,1.0f });
 	//Vector_Push(&world.trisIn,&t1);
 
 	Clear(LIGHT_BLUE);
@@ -122,7 +121,7 @@ void Update(AlxWindow* w){
 	World3D_update(&world,cam.p,(Vec2){ GetWidth(),GetHeight() });
 
 	for(int i = 0;i<world.trisOut.size;i++){
-		triangle* t = (triangle*)Vector_Get(&world.trisOut,i);
+		Tri3D* t = (Tri3D*)Vector_Get(&world.trisOut,i);
 
 		if(Mode==0)
 			RenderTriangle(((Vec2){ t->p[0].x, t->p[0].y }),((Vec2){ t->p[1].x, t->p[1].y }),((Vec2){ t->p[2].x, t->p[2].y }),t->c);
