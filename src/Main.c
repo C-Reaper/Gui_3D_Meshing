@@ -12,7 +12,7 @@ World3D world;
 
 int Mode = 0;
 int Menu = 0;
-float Speed = 4.0f;
+float Speed = 10.0f;
 
 Vec3D WorldOrigin;
 Vec3D FunctionAngle;
@@ -58,7 +58,7 @@ void Setup(AlxWindow* w){
 	);
 	world.normal = WORLD3D_NORMAL_CAP;
 
-	Mesh_Read(&world.trisIn,"./data/mountains.obj");
+	Mesh_Read(&world.trisIn,"./data/axis.obj");
 	Mesh_Shade(&world.trisIn,(Vec3D){ 0.5f,0.4f,0.6f,1.0f });
 }
 
