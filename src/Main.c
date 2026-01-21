@@ -4,13 +4,14 @@
 
 #include "/home/codeleaded/System/Static/Library/Lib3D_Cube.h"
 #include "/home/codeleaded/System/Static/Library/Lib3D_Mathlib.h"
-#include "/home/codeleaded/System/Static/Library/Lib3D_Mesh.h"
+#include "/home/codeleaded/System/Static/Library/Lib3D_MeshFast.h"
 
 
 Camera cam;
 World3D world;	
 
 int Mode = 0;
+int PoolMode = 0;
 int Menu = 0;
 float Speed = 10.0f;
 
@@ -19,9 +20,6 @@ Vec3D FunctionAngle;
 Vec2 FunctionOrigin;
 
 
-float Function_2D(float x,float y){
-	return PerlinNoise_2D_Get(x,y) * 2.0f;
-}
 void Menu_Set(int m){
 	if(Menu==0 && m==1){
 		AlxWindow_Mouse_SetInvisible(&window);
@@ -46,7 +44,7 @@ void Setup(AlxWindow* w){
 	WorldOrigin = (Vec3D){ 0.0f,0.0f,0.0f,1.0f };
 
 	cam = Camera_Make(
-		(Vec3D){ 0.0f,15.0f,-18.0f,1.0f },
+		(Vec3D){ 0.0f,0.0f,-1.0f,1.0f },
 		(Vec3D){ 3.14 * 0.25f,0.0f,0.0f,1.0f },
 		90.0f
 	);
@@ -58,8 +56,18 @@ void Setup(AlxWindow* w){
 	);
 	world.normal = WORLD3D_NORMAL_CAP;
 
-	Mesh_Read(&world.trisIn,"./data/axis.obj");
+	//Mesh_Read(&world.trisIn,"./data/teapot.obj");
+
+	for(int i = 0;i<10;i++){
+		for(int j = 0;j<10;j++){
+			for(int k = 0;k<10;k++){
+				Lib3D_Cube(&world.trisIn,(Vec3D){ k * 2,j * 2,i * 2,1.0f },(Vec3D){ 1.0f,1.0f,1.0f,1.0f },WHITE,WHITE);
+			}
+		}
+	}
 	Mesh_Shade(&world.trisIn,(Vec3D){ 0.5f,0.4f,0.6f,1.0f });
+
+	PoolMode = 0;
 }
 
 void Update(AlxWindow* w){
@@ -81,7 +89,10 @@ void Update(AlxWindow* w){
 		Menu_Set(!Menu);
 
 	if(Stroke(ALX_KEY_Z).PRESSED)
-		Mode = Mode < 3 ? Mode+1 : 0;
+		Mode = Mode < 2 ? Mode+1 : 0;
+
+	if(Stroke(ALX_KEY_U).PRESSED)
+		PoolMode = PoolMode < 1 ? PoolMode+1 : 0;
 
 	// if(Stroke(ALX_KEY_W).DOWN)
 	// 	FunctionOrigin.y += 7.0f * w->ElapsedTime;
@@ -118,27 +129,27 @@ void Update(AlxWindow* w){
 
 	Clear(LIGHT_BLUE);
 
-	World3D_update(&world,cam.p,(Vec2){ GetWidth(),GetHeight() });
+	if(PoolMode == 0)
+		World3D_update(&world,cam.p,(Vec2){ GetWidth(),GetHeight() });
+	else if(PoolMode == 1)
+		World3D_UpdatePool(&world,cam.p,(Vec2){ GetWidth(),GetHeight() });
 
 	for(int i = 0;i<world.trisOut.size;i++){
 		Tri3D* t = (Tri3D*)Vector_Get(&world.trisOut,i);
+		const Pixel c = Pixel_Mulf(t->c.c,t->c.l);
 
 		if(Mode==0)
-			RenderTriangle(((Vec2){ t->p[0].x, t->p[0].y }),((Vec2){ t->p[1].x, t->p[1].y }),((Vec2){ t->p[2].x, t->p[2].y }),t->c);
+			RenderTriangle(((Vec2){ t->p[0].x, t->p[0].y }),((Vec2){ t->p[1].x, t->p[1].y }),((Vec2){ t->p[2].x, t->p[2].y }),c);
 		if(Mode==1)
-			RenderTriangleWire(((Vec2){ t->p[0].x, t->p[0].y }),((Vec2){ t->p[1].x, t->p[1].y }),((Vec2){ t->p[2].x, t->p[2].y }),t->c,1.0f);
-		if(Mode==2){
-			RenderTriangle(((Vec2){ t->p[0].x, t->p[0].y }),((Vec2){ t->p[1].x, t->p[1].y }),((Vec2){ t->p[2].x, t->p[2].y }),t->c);
-			RenderTriangleWire(((Vec2){ t->p[0].x, t->p[0].y }),((Vec2){ t->p[1].x, t->p[1].y }),((Vec2){ t->p[2].x, t->p[2].y }),WHITE,1.0f);
-		}
+			RenderTriangleWire(((Vec2){ t->p[0].x, t->p[0].y }),((Vec2){ t->p[1].x, t->p[1].y }),((Vec2){ t->p[2].x, t->p[2].y }),c,1.0f);
 	}
 
 	// String str = String_Format("X: %f, Y: %f, Z: %f",cam.p.x,cam.p.y,cam.p.z);
 	// RenderCStrSize(str.Memory,str.size,0,0,RED);
 	// String_Free(&str);
-	// str = String_Format("SizeIn: %d, SizeBuff: %d, SizeOut: %d",world.trisIn.size,world.trisBuff.size,world.trisOut.size);
-	// RenderCStrSize(str.Memory,str.size,0,window.AlxFont.CharSizeY + 1,RED);
-	// String_Free(&str);
+	String str = String_Format("SizeIn: %d, SizeBuff: %d, SizeOut: %d",world.trisIn.size,world.trisBuff.size,world.trisOut.size);
+	RenderCStrSize(str.Memory,str.size,0,window.AlxFont.CharSizeY + 1,RED);
+	String_Free(&str);
 }
 
 void Delete(AlxWindow* w){
