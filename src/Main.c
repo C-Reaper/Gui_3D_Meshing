@@ -130,7 +130,7 @@ void Update(AlxWindow* w){
 	Clear(LIGHT_BLUE);
 
 	if(PoolMode == 0)
-		World3D_update(&world,cam.p,(Vec2){ GetWidth(),GetHeight() });
+		World3D_Update(&world,cam.p,(Vec2){ GetWidth(),GetHeight() });
 	else if(PoolMode == 1)
 		World3D_UpdatePool(&world,cam.p,(Vec2){ GetWidth(),GetHeight() });
 
